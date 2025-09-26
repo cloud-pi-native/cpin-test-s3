@@ -3,7 +3,7 @@ FROM maven:3.9.7-eclipse-temurin-21 AS builder
 
 # add pom.xml and source code
 ADD ./pom.xml pom.xml
-ADD .test.txt test.txt
+ADD test.txt test.txt
 ADD ./src src/
 RUN mvn clean package -Dmaven.test.skip=true
 

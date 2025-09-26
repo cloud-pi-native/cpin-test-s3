@@ -4,7 +4,6 @@ include:
       - vault-ci.yml
       - kaniko-ci.yml
     ref: main
-  - local: "/includes/java-mvn.yml"
 
 # default:
 #  tags:
@@ -31,18 +30,6 @@ read_secret:
   stage: read-secret
   extends:
     - .vault:read_secret
-
-
-test-app:
-  only:
-    - web
-  variables:
-    BUILD_IMAGE_NAME: maven:3.8-openjdk-17
-    WORKING_DIR: .
-  stage: test-app
-  extends:
-    - .java:sonar
-  allow_failure: true
 
 docker-build:
   only:

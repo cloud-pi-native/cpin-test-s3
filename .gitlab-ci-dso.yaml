@@ -1,0 +1,55 @@
+include:
+  - project: $CATALOG_PATH
+    file:
+      - vault-ci.yml
+      - kaniko-ci.yml
+    ref: main
+  - local: "/includes/java-mvn.yml"
+
+# default:
+#  tags:
+#    - ADD_CUSTOM_TAG_HERE
+
+cache:
+  paths:
+    - .m2/repository/
+    - node_modules
+
+variables:
+  TAG: "${CI_COMMIT_REF_SLUG}"
+  DOCKERFILE: Dockerfile
+  REGISTRY_URL: "${IMAGE_REPOSITORY}"
+
+stages:
+  - read-secret
+  - test-app
+  - docker-build
+
+read_secret:
+  only:
+    - web
+  stage: read-secret
+  extends:
+    - .vault:read_secret
+
+
+test-app:
+  only:
+    - web
+  variables:
+    BUILD_IMAGE_NAME: maven:3.8-openjdk-17
+    WORKING_DIR: .
+  stage: test-app
+  extends:
+    - .java:sonar
+  allow_failure: true
+
+docker-build:
+  only:
+    - web
+  variables:
+    WORKING_DIR: "."
+    IMAGE_NAME: s3-test
+  stage: docker-build
+  extends:
+    - .kaniko:simple-build-push

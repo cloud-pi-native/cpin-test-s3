@@ -1,0 +1,23 @@
+# Default values
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+    repository: harbor.sdid.cpin.numerique-interieur.com/tests3/s3-test
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "main"
+imagePullSecret: registry-pull-secret
+
+resources: 
+  limits:
+    memory: "512Mi"
+    cpu: "500m"  
+  requests:
+    memory: "512Mi"
+    cpu: "100m"  
+
+AWS_ACCESS_KEY_ID: "test"
+AWS_SECRET_ACCESS_KEY: "test"
+FILE_TO_UPLOAD: "test.txt"
+DISABLE_CERT_CHECKING_SYSTEM_PROPERTY: "true"

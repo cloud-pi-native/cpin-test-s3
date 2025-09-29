@@ -19,14 +19,17 @@ import software.amazon.awssdk.utils.AttributeMap;
 @Service
 public class S3Service {
 
-    @Value("${app.s3.bucket}")
+    @Value("${app.s3.bucket:}")
     private String bucket;
 
-    @Value("${app.s3.region:us-east-1}")
+    @Value("${app.s3.region:}")
     private String region;
 
     @Value("${app.s3.endpoint:}")
     private String endpoint;
+
+    @Value("${app.s3.forcePathStyle:false}")
+    private boolean forcePathStyle;
 
     private S3Client s3;
 
@@ -36,8 +39,8 @@ public class S3Service {
         final AttributeMap attributeMap = AttributeMap.builder()
                 .put(SdkHttpConfigurationOption.TRUST_ALL_CERTIFICATES, true).build();
         final SdkHttpClient sdkHttpClient = new DefaultSdkHttpClientBuilder().buildWithDefaults(attributeMap);
-        software.amazon.awssdk.services.s3.S3ClientBuilder b = S3Client.builder().httpClient(sdkHttpClient).region(r)
-                .forcePathStyle(true);
+        software.amazon.awssdk.services.s3.S3ClientBuilder b = S3Client.builder().httpClient(sdkHttpClient)
+                .forcePathStyle(forcePathStyle);
 
         if (endpoint != null && !endpoint.isBlank()) {
             b.endpointOverride(URI.create(endpoint));

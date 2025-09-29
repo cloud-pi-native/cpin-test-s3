@@ -3,19 +3,19 @@
 # Declare variables to be passed into your templates.
 
 image:
-    repository: harbor.sdid.cpin.numerique-interieur.com/tests3/s3-test
-    pullPolicy: Always
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: "main"
+  repository: harbor.sdid.cpin.numerique-interieur.com/tests3/s3-test
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "main"
 imagePullSecret: registry-pull-secret
 
-resources: 
+resources:
   limits:
     memory: "512Mi"
-    cpu: "500m"  
+    cpu: "500m"
   requests:
     memory: "512Mi"
-    cpu: "100m"  
+    cpu: "100m"
 
 AWS_ACCESS_KEY_ID: "test"
 AWS_SECRET_ACCESS_KEY: "test"
@@ -24,3 +24,8 @@ DISABLE_CERT_CHECKING_SYSTEM_PROPERTY: "true"
 APP_S3_ENDPOINT: "http://minio.minio.svc.cluster.local:9000"
 APP_S3_REGION: "us-east-1"
 APP_S3_BUCKET: "test"
+APP_S3_FORCE_PATH_STYLE: "true"
+
+env:
+  - name: APP_S3_FORCE_PATH_STYLE
+    value: "false"

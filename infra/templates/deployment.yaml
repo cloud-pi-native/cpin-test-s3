@@ -25,6 +25,8 @@ spec:
             - name: FILE_TO_UPLOAD
               value: "{{ .Values.FILE_TO_UPLOAD }}"
           command: ["sh", "-c", "dd if=/dev/urandom of=/tmp/{{ .Values.FILE_TO_UPLOAD }} bs=64M count=16 iflag=fullblock"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: test-volume
               mountPath: /tmp

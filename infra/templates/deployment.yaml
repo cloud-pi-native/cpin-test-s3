@@ -22,6 +22,10 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: Always
           env:
+            - name: APP_S3_ENDPOINT
+              value: "{{ .Values.APP_S3_ENDPOINT }}"
+            - name: APP_S3_REGION
+              value: "{{ .Values.APP_S3_REGION }}"
             - name: AWS_ACCESS_KEY_ID
               value: "{{ .Values.AWS_ACCESS_KEY_ID }}"
             - name: AWS_SECRET_ACCESS_KEY

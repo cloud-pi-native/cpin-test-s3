@@ -21,6 +21,7 @@ import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.http.SdkHttpConfigurationOption;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.utils.AttributeMap;
@@ -52,6 +53,9 @@ public class S3Service {
     @Value("${app.s3.checksumAlgorithm:CRC32}")
     private String checksumAlgorithm;
 
+    @Value("${app.s3.chunkedEncodingEnabled:false}")
+    private boolean chunkedEncodingEnabled;
+
     private S3Client s3;
 
     @PostConstruct
@@ -62,6 +66,9 @@ public class S3Service {
         final SdkHttpClient sdkHttpClient = new DefaultSdkHttpClientBuilder().buildWithDefaults(attributeMap);
         software.amazon.awssdk.services.s3.S3ClientBuilder b = S3Client.builder().httpClient(sdkHttpClient).region(r)
                 .forcePathStyle(forcePathStyle)
+                .serviceConfiguration(S3Configuration.builder()
+                        .chunkedEncodingEnabled(chunkedEncodingEnabled)
+                        .build())
                 .requestChecksumCalculation(RequestChecksumCalculation.fromValue(requestChecksumCalculation))
                 .responseChecksumValidation(ResponseChecksumValidation.fromValue(responseChecksumValidation));
 
@@ -83,22 +90,15 @@ public class S3Service {
 
         try (FileInputStream is = new FileInputStream(file)) {
 
-            if (checksumAlgorithm.equals("SHA256")) {
+            // calcul du checksum SHA256
+            String checksumSHA256 = DigestUtils.sha256Hex(is);
 
-                // calcul du checksum SHA256
-                String checksumSHA256 = DigestUtils.sha256Hex(is);
+            PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
+                    .checksumAlgorithm(ChecksumAlgorithm.fromValue(checksumAlgorithm))
+                    .checksumSHA256(checksumSHA256)
+                    .key(key).build();
+            s3.putObject(por, RequestBody.fromFile(file));
 
-                PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
-                        .checksumAlgorithm(ChecksumAlgorithm.fromValue(checksumAlgorithm))
-                        .checksumSHA256(checksumSHA256)
-                        .key(key).build();
-                s3.putObject(por, RequestBody.fromFile(file));
-            } else {
-                PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
-                        .checksumAlgorithm(ChecksumAlgorithm.fromValue(checksumAlgorithm))
-                        .key(key).build();
-                s3.putObject(por, RequestBody.fromFile(file));
-            }
         } catch (Exception e) {
             log.error("Error uploading file: {}", e.getMessage(), e);
         }

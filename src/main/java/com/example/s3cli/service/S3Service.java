@@ -7,10 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
+import software.amazon.awssdk.core.internal.http.loader.DefaultSdkHttpClientBuilder;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.http.SdkHttpConfigurationOption;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.utils.AttributeMap;
 
 @Service
 public class S3Service {
@@ -29,7 +33,10 @@ public class S3Service {
     @PostConstruct
     public void init() {
         Region r = Region.of(region);
-        software.amazon.awssdk.services.s3.S3ClientBuilder b = S3Client.builder().region(r);
+        final AttributeMap attributeMap = AttributeMap.builder()
+                .put(SdkHttpConfigurationOption.TRUST_ALL_CERTIFICATES, true).build();
+        final SdkHttpClient sdkHttpClient = new DefaultSdkHttpClientBuilder().buildWithDefaults(attributeMap);
+        software.amazon.awssdk.services.s3.S3ClientBuilder b = S3Client.builder().httpClient(sdkHttpClient).region(r);
 
         if (endpoint != null && !endpoint.isBlank()) {
             b.endpointOverride(URI.create(endpoint));

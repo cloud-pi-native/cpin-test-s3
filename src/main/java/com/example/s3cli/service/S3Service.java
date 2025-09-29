@@ -39,7 +39,7 @@ public class S3Service {
         final AttributeMap attributeMap = AttributeMap.builder()
                 .put(SdkHttpConfigurationOption.TRUST_ALL_CERTIFICATES, true).build();
         final SdkHttpClient sdkHttpClient = new DefaultSdkHttpClientBuilder().buildWithDefaults(attributeMap);
-        software.amazon.awssdk.services.s3.S3ClientBuilder b = S3Client.builder().httpClient(sdkHttpClient)
+        software.amazon.awssdk.services.s3.S3ClientBuilder b = S3Client.builder().httpClient(sdkHttpClient).region(r)
                 .forcePathStyle(forcePathStyle);
 
         if (endpoint != null && !endpoint.isBlank()) {

@@ -56,6 +56,9 @@ public class S3Service {
     @Value("${app.s3.chunkedEncodingEnabled:false}")
     private boolean chunkedEncodingEnabled;
 
+    @Value("${app.s3.withSHAHeader:false}")
+    private boolean withSHAHeader;
+
     private S3Client s3;
 
     @PostConstruct
@@ -93,11 +96,19 @@ public class S3Service {
             // calcul du checksum SHA256
             String checksumSHA256 = DigestUtils.sha256Hex(is);
 
-            PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
-                    .checksumAlgorithm(ChecksumAlgorithm.fromValue(checksumAlgorithm))
-                    .checksumSHA256(checksumSHA256)
-                    .key(key).build();
-            s3.putObject(por, RequestBody.fromFile(file));
+            if (withSHAHeader) {
+
+                PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
+                        .checksumAlgorithm(ChecksumAlgorithm.fromValue(checksumAlgorithm))
+                        .checksumSHA256(checksumSHA256)
+                        .key(key).build();
+                s3.putObject(por, RequestBody.fromFile(file));
+            } else {
+                PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
+                        .checksumAlgorithm(ChecksumAlgorithm.fromValue(checksumAlgorithm))
+                        .key(key).build();
+                s3.putObject(por, RequestBody.fromFile(file));
+            }
 
         } catch (Exception e) {
             log.error("Error uploading file: {}", e.getMessage(), e);

@@ -34,5 +34,7 @@ spec:
               value: "{{ .Values.FILE_TO_UPLOAD }}"
             - name: DISABLE_CERT_CHECKING_SYSTEM_PROPERTY
               value: "{{ .Values.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY }}"
+            - name: APP_S3_BUCKET
+              value: "{{ .Values.APP_S3_BUCKET }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

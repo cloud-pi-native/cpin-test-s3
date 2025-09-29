@@ -27,7 +27,6 @@ APP_S3_BUCKET: "test"
 APP_S3_FORCE_PATH_STYLE: "true"
 
 env:
-  - name: APP_S3_FORCE_PATH_STYLE
-    value: "true"
-  - name: APP_S3_FORCEPATHSTYLE
-    value: "true"
+  APP_S3_FORCE_PATH_STYLE: "true"
+  APP_S3_FORCEPATHSTYLE: "true"
+  APP_S3_CHECKSUM_ALGORITHM: "CRC32"

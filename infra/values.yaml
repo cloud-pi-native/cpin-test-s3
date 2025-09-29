@@ -28,4 +28,6 @@ APP_S3_FORCE_PATH_STYLE: "true"
 
 env:
   - name: APP_S3_FORCE_PATH_STYLE
-    value: "false"
+    value: "true"
+  - name: APP_S3_FORCEPATHSTYLE
+    value: "true"

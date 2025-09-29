@@ -16,7 +16,19 @@ spec:
     spec:
       imagePullSecrets:
         - name: {{ .Values.imagePullSecret }}
-
+      {{- if .Values.randomFile }}
+      initContainers:
+        - name: random-file
+          image: "alpine:latest"
+          imagePullPolicy: Always
+          env:
+            - name: FILE_TO_UPLOAD
+              value: "{{ .Values.FILE_TO_UPLOAD }}"
+          command: ["sh", "-c", "dd if=/dev/urandom of=/tmp/{{ .Values.FILE_TO_UPLOAD }} bs=64M count=16 iflag=fullblock"]
+          volumeMounts:
+            - name: test-volume
+              mountPath: /tmp
+      {{- end }}
       containers:
         - name: tests3
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -39,5 +51,18 @@ spec:
           envFrom:
             - configMapRef:
                 name: tests3
+          volumeMounts:
+            - name: test-volume
+              mountPath: /tmp
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: test-volume
+          ephemeral:
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 10Gi

@@ -4,6 +4,12 @@
     <pluginGroups>
     </pluginGroups>
     <proxies>
+        <proxy>
+        <id>default</id>
+        <active>true</active>
+        <host>192.168.5.60</host>
+        <port>8888</port>
+        </proxy>
     </proxies>
     <servers>
     </servers>

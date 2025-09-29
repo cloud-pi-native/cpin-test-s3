@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.utils.AttributeMap;
+import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
 
 @Service
 public class S3Service {
@@ -43,6 +44,9 @@ public class S3Service {
 
     @Value("${app.s3.responseChecksumValidation:#{null}}")
     private String responseChecksumValidation;
+
+    @Value("${app.s3.checksumAlgorithm:CRC32}")
+    private String checksumAlgorithm;
 
     private S3Client s3;
 
@@ -74,7 +78,9 @@ public class S3Service {
         }
 
         try {
-            PutObjectRequest por = PutObjectRequest.builder().bucket(bucket).key(key).build();
+            PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
+                    .checksumAlgorithm(ChecksumAlgorithm.fromValue(checksumAlgorithm))
+                    .key(key).build();
             s3.putObject(por, RequestBody.fromFile(file));
         } catch (Exception e) {
             log.error("Error uploading file: {}", e.getMessage(), e);

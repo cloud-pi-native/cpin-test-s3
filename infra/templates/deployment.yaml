@@ -36,6 +36,8 @@ spec:
               value: "{{ .Values.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY }}"
             - name: APP_S3_BUCKET
               value: "{{ .Values.APP_S3_BUCKET }}"
-            {{- toYaml .Values.env | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: tests3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

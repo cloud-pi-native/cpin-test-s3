@@ -1,8 +1,12 @@
 package com.example.s3cli.service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -77,11 +81,24 @@ public class S3Service {
             log.error("Error creating bucket: {}", e.getMessage(), e);
         }
 
-        try {
-            PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
-                    .checksumAlgorithm(ChecksumAlgorithm.fromValue(checksumAlgorithm))
-                    .key(key).build();
-            s3.putObject(por, RequestBody.fromFile(file));
+        try (FileInputStream is = new FileInputStream(file)) {
+
+            if (checksumAlgorithm.equals("SHA256")) {
+
+                // calcul du checksum SHA256
+                String checksumSHA256 = DigestUtils.sha256Hex(is);
+
+                PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
+                        .checksumAlgorithm(ChecksumAlgorithm.fromValue(checksumAlgorithm))
+                        .checksumSHA256(checksumSHA256)
+                        .key(key).build();
+                s3.putObject(por, RequestBody.fromFile(file));
+            } else {
+                PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
+                        .checksumAlgorithm(ChecksumAlgorithm.fromValue(checksumAlgorithm))
+                        .key(key).build();
+                s3.putObject(por, RequestBody.fromFile(file));
+            }
         } catch (Exception e) {
             log.error("Error uploading file: {}", e.getMessage(), e);
         }

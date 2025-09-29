@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
+import software.amazon.awssdk.core.checksums.RequestChecksumCalculation;
+import software.amazon.awssdk.core.checksums.ResponseChecksumValidation;
 import software.amazon.awssdk.core.internal.http.loader.DefaultSdkHttpClientBuilder;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.http.SdkHttpClient;
@@ -36,6 +38,12 @@ public class S3Service {
     @Value("${app.s3.forcePathStyle:false}")
     private boolean forcePathStyle;
 
+    @Value("${app.s3.requestChecksumCalculation:#{null}}")
+    private String requestChecksumCalculation;
+
+    @Value("${app.s3.responseChecksumValidation:#{null}}")
+    private String responseChecksumValidation;
+
     private S3Client s3;
 
     @PostConstruct
@@ -45,7 +53,9 @@ public class S3Service {
                 .put(SdkHttpConfigurationOption.TRUST_ALL_CERTIFICATES, true).build();
         final SdkHttpClient sdkHttpClient = new DefaultSdkHttpClientBuilder().buildWithDefaults(attributeMap);
         software.amazon.awssdk.services.s3.S3ClientBuilder b = S3Client.builder().httpClient(sdkHttpClient).region(r)
-                .forcePathStyle(forcePathStyle);
+                .forcePathStyle(forcePathStyle)
+                .requestChecksumCalculation(RequestChecksumCalculation.fromValue(requestChecksumCalculation))
+                .responseChecksumValidation(ResponseChecksumValidation.fromValue(responseChecksumValidation));
 
         if (endpoint != null && !endpoint.isBlank()) {
             b.endpointOverride(URI.create(endpoint));

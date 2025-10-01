@@ -88,6 +88,14 @@ public class S3Service {
 
     public void uploadFile(File file, String key) {
 
+        log.info("requestChecksumCalculation: {} - {}", requestChecksumCalculation,
+                RequestChecksumCalculation.fromValue(requestChecksumCalculation));
+        log.info("responseChecksumValidation: {} - {}", responseChecksumValidation,
+                ResponseChecksumValidation.fromValue(responseChecksumValidation));
+        log.info("checksumAlgorithm: {}", checksumAlgorithm);
+        log.info("chunkedEncodingEnabled: {}", chunkedEncodingEnabled);
+        log.info("withSHAHeader: {}", withSHAHeader);
+
         try {
             log.info("\n\n\nCreating bucket: {}\n\n\n", bucket);
             s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());

@@ -29,6 +29,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.utils.AttributeMap;
 import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
+import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 
 @Service
 public class S3Service {
@@ -58,6 +59,9 @@ public class S3Service {
 
     @Value("${app.s3.chunkedEncodingEnabled:false}")
     private boolean chunkedEncodingEnabled;
+
+    @Value("${app.s3.serverSideEncryption:NONE}")
+    private String serverSideEncryption;
 
     @Value("${app.s3.withSHAHeader:false}")
     private boolean withSHAHeader;
@@ -97,20 +101,24 @@ public class S3Service {
         log.info("withSHAHeader: {}", withSHAHeader);
 
         try {
+            log.info("--------------------------------");
             log.info("\n\n\nCreating bucket: {}\n\n\n", bucket);
             s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
             log.info("\n\n\nBucket created: {}\n\n\n", bucket);
+            log.info("--------------------------------");
         } catch (Exception e) {
             log.error("Error creating bucket: {}", e.getMessage(), e);
         }
 
         try (FileInputStream is = new FileInputStream(file)) {
-
+            log.info("--------------------------------");
             log.info("\n\n\nUploading file: {}\n\n\n", file.getName());
 
             // calcul du checksum SHA256
             String checksumSHA256 = DigestUtils.sha256Hex(is);
             log.info("\n\n\nChecksum SHA256: {}\n\n\n", checksumSHA256);
+            is.reset();
+            log.info("\n\n\nChecksum md5: {}\n\n\n", DigestUtils.md5Hex(is));
 
             if (withSHAHeader) {
 
@@ -125,6 +133,7 @@ public class S3Service {
                         .key(key).build();
                 s3.putObject(por, RequestBody.fromFile(file));
             }
+            log.info("--------------------------------");
             log.info("\n\n\nFile uploaded: {}\n\n\n", file.getName());
 
         } catch (Exception e) {
@@ -136,12 +145,13 @@ public class S3Service {
             ListObjectsV2Response list = s3.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).build());
 
             for (S3Object s3Object : list.contents()) {
-                log.info("\n\n\nObject: {}\n\n\n", s3Object.toString());
+                log.info("--------------------------------");
                 log.info("\n\n\nObject: {}\n\n\n", s3Object.toString());
                 log.info("\n\n\nKey: {}, Size: {}, Has Checksum Algorithm: {}, Checksum Algorithm: {}, ETag: {}\n\n\n",
                         s3Object.key(),
                         s3Object.size(), s3Object.hasChecksumAlgorithm(), s3Object.checksumAlgorithm(),
                         s3Object.eTag());
+                log.info("--------------------------------");
             }
             log.info("\n\n\nObjects listed: {}\n\n\n", bucket);
         } catch (Exception e) {

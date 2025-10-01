@@ -110,16 +110,25 @@ public class S3Service {
             log.error("Error creating bucket: {}", e.getMessage(), e);
         }
 
+        log.info("--------------------------------");
+        log.info("\n\n\nUploading file: {}\n\n\n", file.getName());
+
+        String checksumSHA256 = null;
+
         try (FileInputStream is = new FileInputStream(file)) {
-            log.info("--------------------------------");
-            log.info("\n\n\nUploading file: {}\n\n\n", file.getName());
-
-            // calcul du checksum SHA256
-            String checksumSHA256 = DigestUtils.sha256Hex(is);
+            checksumSHA256 = DigestUtils.sha256Hex(is);
             log.info("\n\n\nChecksum SHA256: {}\n\n\n", checksumSHA256);
-            is.reset();
-            log.info("\n\n\nChecksum md5: {}\n\n\n", DigestUtils.md5Hex(is));
+        } catch (Exception e) {
+            log.error("Error calculating checksum SHA256: {}", e.getMessage(), e);
+        }
 
+        try (FileInputStream is = new FileInputStream(file)) {
+            log.info("\n\n\nChecksum md5: {}\n\n\n", DigestUtils.md5Hex(is));
+        } catch (Exception e) {
+            log.error("Error calculating checksum md5: {}", e.getMessage(), e);
+        }
+
+        try {
             if (withSHAHeader) {
 
                 PutObjectRequest por = PutObjectRequest.builder().bucket(bucket)
@@ -133,12 +142,11 @@ public class S3Service {
                         .key(key).build();
                 s3.putObject(por, RequestBody.fromFile(file));
             }
-            log.info("--------------------------------");
-            log.info("\n\n\nFile uploaded: {}\n\n\n", file.getName());
-
         } catch (Exception e) {
             log.error("Error uploading file: {}", e.getMessage(), e);
         }
+        log.info("--------------------------------");
+        log.info("\n\n\nFile uploaded: {}\n\n\n", file.getName());
 
         try {
             log.info("\n\n\nListing objects: {}\n\n\n", bucket);

@@ -3,8 +3,6 @@ package com.example.s3cli.service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -29,7 +27,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.utils.AttributeMap;
 import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
-import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 
 @Service
 public class S3Service {

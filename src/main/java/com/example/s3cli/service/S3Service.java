@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.checksums.RequestChecksumCalculation;
 import software.amazon.awssdk.core.checksums.ResponseChecksumValidation;
 import software.amazon.awssdk.core.internal.http.loader.DefaultSdkHttpClientBuilder;
@@ -21,6 +22,8 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -148,6 +151,14 @@ public class S3Service {
                         s3Object.key(),
                         s3Object.size(), s3Object.hasChecksumAlgorithm(), s3Object.checksumAlgorithm(),
                         s3Object.eTag());
+
+                try (ResponseInputStream<GetObjectResponse> obj = s3
+                        .getObject(GetObjectRequest.builder().bucket(bucket).key(s3Object.key()).build());) {
+                    log.info("\n\n\nChecksum md5: {}\n\n\n", DigestUtils.md5Hex(obj));
+                    log.info("\n\n\nChecksum SHA256: {}\n\n\n", DigestUtils.sha256Hex(obj));
+                } catch (Exception e) {
+                    log.error("Error getting object: {}", e.getMessage(), e);
+                }
                 log.info("--------------------------------");
             }
             log.info("\n\n\nObjects listed: {}\n\n\n", bucket);

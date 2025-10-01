@@ -66,6 +66,9 @@ public class S3Service {
     @Value("${app.s3.withSHAHeader:false}")
     private boolean withSHAHeader;
 
+    @Value("${app.s3.dummychecksum:false}")
+    private boolean dummychecksum;
+
     private S3Client s3;
 
     @PostConstruct
@@ -126,6 +129,10 @@ public class S3Service {
             log.info("\n\n\nChecksum md5: {}\n\n\n", DigestUtils.md5Hex(is));
         } catch (Exception e) {
             log.error("Error calculating checksum md5: {}", e.getMessage(), e);
+        }
+
+        if (dummychecksum) {
+            checksumSHA256 = "dummy";
         }
 
         try {

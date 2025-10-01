@@ -28,6 +28,7 @@ APP_S3_REGION: "us-east-1"
 APP_S3_BUCKET: "test"
 APP_S3_FORCE_PATH_STYLE: "true"
 FILE_SIZE: "96M"
+DUMMYCHECKSUM: "true"
 
 env:
   APP_S3_FORCE_PATH_STYLE: "true"

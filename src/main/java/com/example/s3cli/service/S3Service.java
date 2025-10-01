@@ -23,7 +23,10 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.utils.AttributeMap;
 import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
 
@@ -112,6 +115,16 @@ public class S3Service {
 
         } catch (Exception e) {
             log.error("Error uploading file: {}", e.getMessage(), e);
+        }
+
+        try {
+            ListObjectsV2Response list = s3.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).build());
+
+            for (S3Object s3Object : list.contents()) {
+                log.info("Key: {}, Size: {}, Has Checksum Algorithm: {}, Checksum Algorithm: {}", s3Object.key(), s3Object.size(), s3Object.hasChecksumAlgorithm(), s3Object.checksumAlgorithm());
+            }
+        } catch (Exception e) {
+            log.error("Error listing objects: {}", e.getMessage(), e);
         }
 
     }

@@ -89,15 +89,20 @@ public class S3Service {
     public void uploadFile(File file, String key) {
 
         try {
+            log.info("\n\n\nCreating bucket: {}\n\n\n", bucket);
             s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+            log.info("\n\n\nBucket created: {}\n\n\n", bucket);
         } catch (Exception e) {
             log.error("Error creating bucket: {}", e.getMessage(), e);
         }
 
         try (FileInputStream is = new FileInputStream(file)) {
 
+            log.info("\n\n\nUploading file: {}\n\n\n", file.getName());
+
             // calcul du checksum SHA256
             String checksumSHA256 = DigestUtils.sha256Hex(is);
+            log.info("\n\n\nChecksum SHA256: {}\n\n\n", checksumSHA256);
 
             if (withSHAHeader) {
 
@@ -112,17 +117,25 @@ public class S3Service {
                         .key(key).build();
                 s3.putObject(por, RequestBody.fromFile(file));
             }
+            log.info("\n\n\nFile uploaded: {}\n\n\n", file.getName());
 
         } catch (Exception e) {
             log.error("Error uploading file: {}", e.getMessage(), e);
         }
 
         try {
+            log.info("\n\n\nListing objects: {}\n\n\n", bucket);
             ListObjectsV2Response list = s3.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).build());
 
             for (S3Object s3Object : list.contents()) {
-                log.info("Key: {}, Size: {}, Has Checksum Algorithm: {}, Checksum Algorithm: {}", s3Object.key(), s3Object.size(), s3Object.hasChecksumAlgorithm(), s3Object.checksumAlgorithm());
+                log.info("\n\n\nObject: {}\n\n\n", s3Object.toString());
+                log.info("\n\n\nObject: {}\n\n\n", s3Object.toString());
+                log.info("\n\n\nKey: {}, Size: {}, Has Checksum Algorithm: {}, Checksum Algorithm: {}, ETag: {}\n\n\n",
+                        s3Object.key(),
+                        s3Object.size(), s3Object.hasChecksumAlgorithm(), s3Object.checksumAlgorithm(),
+                        s3Object.eTag());
             }
+            log.info("\n\n\nObjects listed: {}\n\n\n", bucket);
         } catch (Exception e) {
             log.error("Error listing objects: {}", e.getMessage(), e);
         }

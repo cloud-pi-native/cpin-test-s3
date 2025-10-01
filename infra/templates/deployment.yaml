@@ -24,7 +24,7 @@ spec:
           env:
             - name: FILE_TO_UPLOAD
               value: "{{ .Values.FILE_TO_UPLOAD }}"
-          command: ["sh", "-c", "dd if=/dev/urandom of={{ .Values.FILE_TO_UPLOAD }} bs={{ .Values.FILE_SIZE }} count=1 iflag=fullblock"]
+          command: ["sh", "-c", "dd if=/dev/urandom of={{ .Values.FILE_TO_UPLOAD }} bs={{ .Values.FILE_SIZE }} count=16 iflag=fullblock"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
